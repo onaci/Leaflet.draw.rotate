@@ -24,8 +24,9 @@
         this._shape.setStyle(this._shape.options.editing);
 
         if (!this._markerGroup) {
-          this._enableRotate(); // this._enableDragging();
+          this._enableRotate();
 
+          this._enableDragging();
 
           this._initMarkers();
         }
