@@ -1498,8 +1498,6 @@
 
     },
     _onScaleStandard: function (evt) {
-      console.log('_onScaleStandard');
-
       let ptH = this._map.latLngToContainerPoint(evt.latlng);
 
       let ptHlineOANormalLine = this._lineVecteurNormalPoint(this._lineOA.v, ptH); // calc H projection on OA
@@ -1525,11 +1523,12 @@
 
         for (let indexHandler = 0; indexHandler < 4; indexHandler++) {
           let handler = this._handlers[indexHandler];
+          const round = this.options.scaleRounding || 4;
           let pathLatLng = null;
 
           for (let i = 0, len = rings.length; i < len; i++) {
             for (let j = 0, jj = rings[i].length; j < jj; j++) {
-              if (latlngs[i][j].lat === handler._latlng.lat && latlngs[i][j].lng === handler._latlng.lng) {
+              if (+latlngs[i][j].lat.toFixed(round) === +handler._latlng.lat.toFixed(round) && +latlngs[i][j].lng.toFixed(round) === +handler._latlng.lng.toFixed(round)) {
                 pathLatLng = latlngs[i][j];
               }
             }
