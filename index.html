@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+
+<head>
+	<title>Leaflet Draw Rotate</title>
+	<meta charset="utf-8">
+</head>
+
+<body>
+
+	<div id="map"></div>
+	<div id="controls">
+
+		<h2>Leaflet Draw Rotate (only implemented for rectangle so far)</h2>
+		
+	</div>
+
+	<!--deps-->
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+	<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+	<script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+	<link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+	
+	<!--the plugin-->
+	<script src="../dist/L.Path.Transform.js"></script>
+	<script src="../dist/Edit.Rectangle.Rotate.js"></script>
+
+	<!--demo stuff-->
+	<link rel="stylesheet" href="demo.css" />
+	<script src="demo.js"></script>
+
+</body>
+
+</html>
