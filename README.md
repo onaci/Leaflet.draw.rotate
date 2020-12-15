@@ -34,10 +34,11 @@ Options should be applied via the edit handler's prototype `setOptions` function
 - **`options.handlerOptions`** - **<[Path_options](http://leafletjs.com/reference.html#path-options)>** - edge markers options
 - **`options.boundsOptions`** - **<[Polyline_options](http://leafletjs.com/reference.html#polyline-options)>** - bounding rectangle options
 - **`options.rotateHandleOptions`** - **<[Polyline_options](http://leafletjs.com/reference.html#polyline-options)>** - rotation handle line styles
-- **`options.handleLength`** - **Number** - Length of the rotation handle in pixels. Defaults to 20.
+- **`options.handleLength`** - **Int** - Length of the rotation handle in pixels. Defaults to 20.
 - **`options.rotation`** - **Boolean** - Enable/disable rotation. Default `true`
 - **`options.scaling`** - **Boolean** - Enable/disable scaling. Default `true`
 - **`options.uniformScaling`** - **Boolean** - Use uniform scaling (maintain aspect ratio). Default `true`
+- **`options.scaleRounding`** - **Int** - Decimal rounding value to use when matching non-uniform drag handles (can use this if you encounter [#5](https://github.com/onaci/Leaflet.draw.rotate/issues/5)). Default `4`
 
 ## Events
 

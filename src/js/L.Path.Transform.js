@@ -1567,8 +1567,7 @@ L.Handler.PathTransform = L.Handler.extend({
   },
 
   _onScaleStandard: function(evt) {
-
-    console.log('_onScaleStandard');
+  
     let ptH = this._map.latLngToContainerPoint(evt.latlng);
 
     let ptHlineOANormalLine = this._lineVecteurNormalPoint(this._lineOA.v, ptH);
@@ -1592,10 +1591,11 @@ L.Handler.PathTransform = L.Handler.extend({
       for (let indexHandler = 0; indexHandler < 4; indexHandler++) {
         let handler = this._handlers[indexHandler];
 
+        const round = this.options.scaleRounding || 4;
         let pathLatLng = null;
         for (let i = 0, len = rings.length; i < len; i++) {
           for (let j = 0, jj = rings[i].length; j < jj; j++) {
-            if (latlngs[i][j].lat === handler._latlng.lat && latlngs[i][j].lng === handler._latlng.lng) {
+            if (+latlngs[i][j].lat.toFixed(round) === +handler._latlng.lat.toFixed(round) && +latlngs[i][j].lng.toFixed(round) === +handler._latlng.lng.toFixed(round)) {
               pathLatLng = latlngs[i][j];
             }
           }
@@ -1611,7 +1611,7 @@ L.Handler.PathTransform = L.Handler.extend({
 
         if (this._activeMarker.options.index === (handler.options.index + 1) % 4) {
           // on est sur le coin B
-          let BPrimeLatLng = this._map.containerPointToLatLng(pHonLineOB);
+          let BPrimeLatLng = this._map.containerPointToLatLng(pHonLineOB);     
           handler._latlng.lat = BPrimeLatLng.lat;
           handler._latlng.lng = BPrimeLatLng.lng;
           pathLatLng.lat = BPrimeLatLng.lat;
