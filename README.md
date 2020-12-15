@@ -17,7 +17,8 @@
 import 'leaflet';
 import 'leaflet-draw';
 
-// import bindings for the geomtries you want to rotate
+// import plugin, then rotate bindings for each required geomtry type
+import 'leaflet-draw-rotate';
 import '/path/to/dist/Edit.Rectangle.Rotate.js';
 
 // optional - configure transform options
