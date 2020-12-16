@@ -20,6 +20,7 @@ L.Edit.Rectangle.include( /** @lends L.Edit.Rectangle.prototype */ {
       if (!this._markerGroup) {
         this._enableRotate();
         this._enableDragging();
+        this._enableScale();
         this._initMarkers();
       }
     }
@@ -141,6 +142,42 @@ L.Edit.Rectangle.include( /** @lends L.Edit.Rectangle.prototype */ {
    * @param  {L.MouseEvent} evt
    */
   _onStopDragFeature: function() {
+    this._fireEdit();
+  },
+
+  /* ------------------- SCALE (RESIZE) STUFF ------------------*/
+   /**
+   * Adds scale listeners
+   */
+  _enableScale: function() {
+    this._shape
+      .on('scalestart', this._onStartScaleFeature, this)
+      .on('scaleend', this._onStopScaleFeature, this);
+  },
+
+  /**
+   * Removes drag start listeners
+   */
+  _disableScale: function() {
+    this._shape
+      .off('scalestart', this._onStartDragFeature, this)
+      .off('scaleend', this._onStopScaleFeature, this);
+  },
+
+  /**
+   * Start scale
+   * @param  {L.MouseEvent} evt
+   */
+  _onStartScaleFeature: function() {
+    this._shape._map.removeLayer(this._markerGroup);
+    this._shape.fire('editstart');
+  },
+
+  /**
+   * Scale stopped
+   * @param  {L.MouseEvent} evt
+   */
+  _onStopScaleFeature: function() {
     this._fireEdit();
   }
 });
