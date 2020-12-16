@@ -31,9 +31,9 @@ L.Edit.Rectangle.prototype.setOptions({ uniformScaling: false });
 
 Options should be applied via the edit handler's prototype `setOptions` function (see above example).
 
-- **`options.handlerOptions`** - **<[Path_options](http://leafletjs.com/reference.html#path-options)>** - edge markers options
-- **`options.boundsOptions`** - **<[Polyline_options](http://leafletjs.com/reference.html#polyline-options)>** - bounding rectangle options
-- **`options.rotateHandleOptions`** - **<[Polyline_options](http://leafletjs.com/reference.html#polyline-options)>** - rotation handle line styles
+- **`options.handlerOptions`** - **<[Path_options](http://leafletjs.com/reference.html#path-option)>** - edge markers options
+- **`options.boundsOptions`** - **<[Polyline_options](http://leafletjs.com/reference.html#polyline-option)>** - bounding rectangle options
+- **`options.rotateHandleOptions`** - **<[Polyline_options](http://leafletjs.com/reference.html#polyline-option)>** - rotation handle line styles
 - **`options.handleLength`** - **Int** - Length of the rotation handle in pixels. Defaults to 20.
 - **`options.rotation`** - **Boolean** - Enable/disable rotation. Default `true`
 - **`options.scaling`** - **Boolean** - Enable/disable scaling. Default `true`
@@ -47,6 +47,17 @@ Following events are fired on the transformed layer
 - **`rotatestart`, `rotate`, `rotateend`** - `{ rotation: <Radians> }`
 - **`scalestart`, `scale`, `scaleend`** - `{ scale: <L.Point> }`
 - **`transformstart`, `transform`, `transformed`** - `{ rotation: ..., scale: ..., matrix: <L.Matrix> }`
+
+## Programmatic changes
+
+If you have changed the geometry of the transformed layer and want the tool to reflect the changes, use:
+
+```js
+// you have changed the geometry here
+layer.setLatLngs([...]);
+// and want to update handlers:
+layer.transform.reset();
+```
 
 ## Development
 

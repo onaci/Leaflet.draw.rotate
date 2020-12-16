@@ -1578,7 +1578,6 @@
      * @param  {Event} evt
      */
     _onScaleUniform: function (evt) {
-      console.log('_onScaleUniform');
       var originPoint = this._originMarker._point;
       var ratioX, ratioY;
       ratioX = originPoint.distanceTo(evt.layerPoint) / this._initialDist;
@@ -1600,8 +1599,6 @@
      * @param  {Event} evt
      */
     _onScaleEnd: function (evt) {
-      console.log('_onScaleEnd');
-
       this._map.off('mousemove', this._onScaleUniform, this).off('mousemove', this._onScaleStandard, this).off('mouseup', this._onScaleEnd, this);
 
       this._map.addLayer(this._handleLine);
@@ -1638,7 +1635,7 @@
       if (this._rectShape) {
         return L.GeoJSON.geometryToLayer(this._rectShape, this.options.boundsOptions);
       } else {
-        return new L.Rectangle(this._path.getBounds(), this.options.boundsOptions);
+        return L.GeoJSON.geometryToLayer(this._path.toGeoJSON(), this.options.boundsOptions);
       }
     },
 

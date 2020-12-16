@@ -1642,9 +1642,7 @@ L.Handler.PathTransform = L.Handler.extend({
   /**
    * @param  {Event} evt
    */
-  _onScaleUniform: function(evt) {
-    console.log('_onScaleUniform');
-    
+  _onScaleUniform: function(evt) {  
     var originPoint = this._originMarker._point;
     var ratioX, ratioY;
     ratioX = originPoint.distanceTo(evt.layerPoint) / this._initialDist;
@@ -1669,8 +1667,6 @@ L.Handler.PathTransform = L.Handler.extend({
    * @param  {Event} evt
    */
   _onScaleEnd: function(evt) {
-    console.log('_onScaleEnd');
-    
     this._map
       .off('mousemove', this._onScaleUniform, this)
       .off('mousemove', this._onScaleStandard, this)
@@ -1712,8 +1708,8 @@ L.Handler.PathTransform = L.Handler.extend({
       return L.GeoJSON.geometryToLayer(
         this._rectShape, this.options.boundsOptions);
     } else {
-      return new L.Rectangle(
-        this._path.getBounds(), this.options.boundsOptions);
+      return L.GeoJSON.geometryToLayer(
+        this._path.toGeoJSON(), this.options.boundsOptions);
     }
   },
 
