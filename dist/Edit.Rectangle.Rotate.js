@@ -80,7 +80,7 @@
     },
 
     /**
-     * Adds drag start listeners
+     * Adds rotate listeners
      */
     _enableRotate: function () {
       if (!this._shape.transform) {
@@ -93,7 +93,7 @@
     },
 
     /**
-     * Removes drag start listeners
+     * Removes rotate listeners
      */
     _disableRotate: function () {
       this._shape.transform.disable();
