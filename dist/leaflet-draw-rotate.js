@@ -4,9 +4,16 @@
 }((function () { 'use strict';
 
   /**
+   * Leaflet vector features drag functionality
+   * @author Alexander Milevski <info@w8r.name>
+   * @preserve
+   */
+
+  /**
    * Matrix transform path for SVG/VML
    * Renderer-independent
    */
+  const TRANSPARENT_COLOR = "rgba(0,0,0,0)";
   L.Path.include({
     /**
      * Applies matrix transformation to SVG
@@ -42,16 +49,16 @@
     }
   });
   var END = {
-    mousedown: 'mouseup',
-    touchstart: 'touchend',
-    pointerdown: 'touchend',
-    MSPointerDown: 'touchend'
+    mousedown: "mouseup",
+    touchstart: "touchend",
+    pointerdown: "touchend",
+    MSPointerDown: "touchend"
   };
   var MOVE = {
-    mousedown: 'mousemove',
-    touchstart: 'touchmove',
-    pointerdown: 'touchmove',
-    MSPointerDown: 'touchmove'
+    mousedown: "mousemove",
+    touchstart: "touchmove",
+    pointerdown: "touchmove",
+    MSPointerDown: "touchmove"
   };
 
   function distance(a, b) {
@@ -70,7 +77,7 @@
   /** @lends  L.Path.Drag.prototype */
   {
     statics: {
-      DRAGGING_CLS: 'leaflet-path-draggable'
+      DRAGGING_CLS: "leaflet-path-draggable"
     },
 
     /**
@@ -108,9 +115,9 @@
      * Enable dragging
      */
     addHooks: function () {
-      this._path.on('mousedown', this._onDragStart, this);
+      this._path.on("mousedown", this._onDragStart, this);
 
-      this._path.options.className = this._path.options.className ? this._path.options.className + ' ' + L.Handler.PathDrag.DRAGGING_CLS : L.Handler.PathDrag.DRAGGING_CLS;
+      this._path.options.className = this._path.options.className ? this._path.options.className + " " + L.Handler.PathDrag.DRAGGING_CLS : L.Handler.PathDrag.DRAGGING_CLS;
 
       if (this._path._path) {
         L.DomUtil.addClass(this._path._path, L.Handler.PathDrag.DRAGGING_CLS);
@@ -121,9 +128,9 @@
      * Disable dragging
      */
     removeHooks: function () {
-      this._path.off('mousedown', this._onDragStart, this);
+      this._path.off("mousedown", this._onDragStart, this);
 
-      this._path.options.className = this._path.options.className.replace(new RegExp('\\s+' + L.Handler.PathDrag.DRAGGING_CLS), '');
+      this._path.options.className = this._path.options.className.replace(new RegExp("\\s+" + L.Handler.PathDrag.DRAGGING_CLS), "");
 
       if (this._path._path) {
         L.DomUtil.removeClass(this._path._path, L.Handler.PathDrag.DRAGGING_CLS);
@@ -142,13 +149,17 @@
      * @param  {L.MouseEvent} evt
      */
     _onDragStart: function (evt) {
-      var eventType = evt.originalEvent._simulated ? 'touchstart' : evt.originalEvent.type;
+      if (!this._path._map) {
+        return;
+      }
+
+      var eventType = evt.originalEvent._simulated ? "touchstart" : evt.originalEvent.type;
       this._mapDraggingWasEnabled = false;
       this._startPoint = evt.containerPoint.clone();
       this._dragStartPoint = evt.containerPoint.clone();
       this._matrix = [1, 0, 0, 1, 0, 0];
       L.DomEvent.stop(evt.originalEvent);
-      L.DomUtil.addClass(this._path._renderer._container, 'leaflet-interactive');
+      L.DomUtil.addClass(this._path._renderer._container, "leaflet-interactive");
       L.DomEvent.on(document, MOVE[eventType], this._onDrag, this).on(document, END[eventType], this._onDragEnd, this);
 
       if (this._path._map.dragging.enabled()) {
@@ -174,13 +185,17 @@
      * @param  {L.MouseEvent} evt
      */
     _onDrag: function (evt) {
+      if (!this._path._map) {
+        return;
+      }
+
       L.DomEvent.stop(evt);
       var first = evt.touches && evt.touches.length >= 1 ? evt.touches[0] : evt;
 
       var containerPoint = this._path._map.mouseEventToContainerPoint(first); // skip taps
 
 
-      if (evt.type === 'touchmove' && !this._path._dragMoved) {
+      if (evt.type === "touchmove" && !this._path._dragMoved) {
         var totalMouseDragDistance = this._dragStartPoint.distanceTo(containerPoint);
 
         if (totalMouseDragDistance <= this._path._map.options.tapTolerance) {
@@ -197,7 +212,7 @@
         if (!this._path._dragMoved) {
           this._path._dragMoved = true;
 
-          this._path.fire('dragstart', evt); // we don't want that to happen on click
+          this._path.fire("dragstart", evt); // we don't want that to happen on click
 
 
           this._path.bringToFront();
@@ -208,11 +223,11 @@
         this._startPoint.x = x;
         this._startPoint.y = y;
 
-        this._path.fire('predrag', evt);
+        this._path.fire("predrag", evt);
 
         this._path._transform(this._matrix);
 
-        this._path.fire('drag', evt);
+        this._path.fire("drag", evt);
       }
     },
 
@@ -221,6 +236,10 @@
      * @param  {L.MouseEvent} evt
      */
     _onDragEnd: function (evt) {
+      if (!this._path._map) {
+        return;
+      }
+
       var containerPoint = this._path._map.mouseEventToContainerPoint(evt);
 
       var moved = this.moved(); // apply matrix
@@ -237,14 +256,14 @@
         L.DomEvent.stop(evt);
       }
 
-      L.DomEvent.off(document, 'mousemove touchmove', this._onDrag, this);
-      L.DomEvent.off(document, 'mouseup touchend', this._onDragEnd, this);
+      L.DomEvent.off(document, "mousemove touchmove", this._onDrag, this);
+      L.DomEvent.off(document, "mouseup touchend", this._onDragEnd, this);
 
       this._restoreCoordGetters(); // consistency
 
 
       if (moved) {
-        this._path.fire('dragend', {
+        this._path.fire("dragend", {
           distance: distance(this._dragStartPoint, containerPoint)
         }); // hack for skipping the click in canvas-rendered layers
 
@@ -253,7 +272,7 @@
         this._path._containsPoint = L.Util.falseFn;
         L.Util.requestAnimFrame(function () {
           L.DomEvent.skipped({
-            type: 'click'
+            type: "click"
           });
           this._path._containsPoint = contains;
         }, this);
@@ -267,7 +286,7 @@
       if (this._mapDraggingWasEnabled) {
         if (moved) {
           L.DomEvent.fakeStop({
-            type: 'click'
+            type: "click"
           });
         }
 
@@ -285,6 +304,10 @@
      * @param {Array.<Number>} matrix
      */
     _transformPoints: function (matrix, dest) {
+      if (!this._path._map) {
+        return;
+      }
+
       var path = this._path;
       var i, len, latlng;
       var px = L.point(matrix[4], matrix[5]);
@@ -408,7 +431,7 @@
      * Reset transform matrix
      */
     _resetTransformPath: function (layer) {
-      layer._path.setAttributeNS(null, 'transform', '');
+      layer._path.setAttributeNS(null, "transform", "");
     },
 
     /**
@@ -417,7 +440,7 @@
      * @param {Array.<Number>} matrix
      */
     transformPath: function (layer, matrix) {
-      layer._path.setAttributeNS(null, 'transform', 'matrix(' + matrix.join(' ') + ')');
+      layer._path.setAttributeNS(null, "transform", "matrix(" + matrix.join(" ") + ")");
     }
   });
   L.SVG.include(!L.Browser.vml ? {} : {
@@ -445,17 +468,17 @@
       var skew = layer._skew;
 
       if (!skew) {
-        skew = L.SVG.create('skew');
+        skew = L.SVG.create("skew");
 
         layer._path.appendChild(skew);
 
-        skew.style.behavior = 'url(#default#VML)';
+        skew.style.behavior = "url(#default#VML)";
         layer._skew = skew;
       } // handle skew/translate separately, cause it's broken
 
 
-      var mt = matrix[0].toFixed(8) + ' ' + matrix[1].toFixed(8) + ' ' + matrix[2].toFixed(8) + ' ' + matrix[3].toFixed(8) + ' 0 0';
-      var offset = Math.floor(matrix[4]).toFixed() + ', ' + Math.floor(matrix[5]).toFixed() + '';
+      var mt = matrix[0].toFixed(8) + " " + matrix[1].toFixed(8) + " " + matrix[2].toFixed(8) + " " + matrix[3].toFixed(8) + " 0 0";
+      var offset = Math.floor(matrix[4]).toFixed() + ", " + Math.floor(matrix[5]).toFixed() + "";
       var s = this._path.style;
       var l = parseFloat(s.left);
       var t = parseFloat(s.top);
@@ -478,8 +501,8 @@
         h = 1;
       }
 
-      var origin = (-l / w - 0.5).toFixed(8) + ' ' + (-t / h - 0.5).toFixed(8);
-      skew.on = 'f';
+      var origin = (-l / w - 0.5).toFixed(8) + " " + (-t / h - 0.5).toFixed(8);
+      skew.on = "f";
       skew.matrix = mt;
       skew.origin = origin;
       skew.offset = offset;
@@ -537,8 +560,8 @@
 
       if (!copy) {
         // get copy of all rendered layers
-        copy = this._containerCopy = document.createElement('canvas');
-        copyCtx = copy.getContext('2d'); // document.body.appendChild(copy);
+        copy = this._containerCopy = document.createElement("canvas");
+        copyCtx = copy.getContext("2d"); // document.body.appendChild(copy);
 
         copy.width = m * size.x;
         copy.height = m * size.y;
@@ -611,7 +634,7 @@
     var obj = arguments[i];
 
     function isObject(object) {
-      return Object.prototype.toString.call(object) === '[object Object]';
+      return Object.prototype.toString.call(object) === "[object Object]";
     } // make sure we don't modify source element and it's properties
     // objects are passed by reference
 
@@ -712,7 +735,7 @@
 
       var translateX, translateY;
 
-      if (typeof translate === 'number') {
+      if (typeof translate === "number") {
         translateX = translateY = translate;
       } else {
         translateX = translate.x;
@@ -734,7 +757,7 @@
       var scaleX, scaleY;
       origin = origin || L.point(0, 0);
 
-      if (typeof scale === 'number') {
+      if (typeof scale === "number") {
         scaleX = scaleY = scale;
       } else {
         scaleX = scale.x;
@@ -816,7 +839,7 @@
 
   L.PathTransform.Handle = L.CircleMarker.extend({
     options: {
-      className: 'leaflet-path-transform-handler'
+      className: "leaflet-editing-icon leaflet-div-icon"
     },
     onAdd: function (map) {
       L.CircleMarker.prototype.onAdd.call(this, map);
@@ -832,21 +855,21 @@
    * @type {Array}
    */
 
-  L.PathTransform.Handle.CursorsByType = ['nesw-resize', 'nwse-resize', 'nesw-resize', 'nwse-resize'];
+  L.PathTransform.Handle.CursorsByType = ["nesw-resize", "nwse-resize", "nesw-resize", "nwse-resize"];
   /**
    * @extends {L.Handler.PathTransform.Handle}
    */
 
   L.PathTransform.RotateHandle = L.PathTransform.Handle.extend({
     options: {
-      className: 'leaflet-path-transform-handler transform-handler--rotate'
+      className: "leaflet-editing-icon leaflet-div-icon transform-handler--rotate"
     },
     onAdd: function (map) {
       L.CircleMarker.prototype.onAdd.call(this, map);
 
       if (this._path && this.options.setCursor) {
         // SVG/VML
-        this._path.style.cursor = 'all-scroll';
+        this._path.style.cursor = "all-scroll";
       }
     }
   });
@@ -854,23 +877,23 @@
     options: {
       rotation: true,
       scaling: true,
-      uniformScaling: true,
+      // uniformScaling: true,
       maxZoom: 22,
       // edge handlers
       handlerOptions: {
-        radius: 5,
-        fillColor: '#ffffff',
-        color: '#202020',
-        fillOpacity: 1,
-        weight: 2,
-        opacity: 0.7,
+        // radius: 5,
+        fillColor: "#ffffff",
+        color: "#666",
+        fillOpacity: 0.7,
+        weight: 1,
         setCursor: true
       },
       // rectangle
       boundsOptions: {
-        weight: 3,
-        opacity: 1,
-        dashArray: [10, 10],
+        // weight: 1,
+        color: TRANSPARENT_COLOR,
+        opacity: 0,
+        // dashArray: [3, 3],
         fill: false,
         noClip: true
       },
@@ -878,6 +901,7 @@
       rotateHandleOptions: {
         weight: 1,
         opacity: 1,
+        color: "#ffffff",
         setCursor: true
       },
       // rotation handle length
@@ -944,7 +968,7 @@
     addHooks: function () {
       this._createHandlers();
 
-      this._path.on('dragstart', this._onDragStart, this).on('dragend', this._onDragEnd, this);
+      this._path.on("dragstart", this._onDragStart, this).on("scalestart", this._makeHandlersTransparent, this).on("dragend", this._onDragEnd, this);
     },
 
     /**
@@ -953,7 +977,7 @@
     removeHooks: function () {
       this._hideHandlers();
 
-      this._path.off('dragstart', this._onDragStart, this).off('dragend', this._onDragEnd, this);
+      this._path.off("dragstart", this._onDragStart, this).off("scalestart", this._makeHandlersTransparent, this).off("dragend", this._onDragEnd, this);
 
       this._handlersGroup = null;
       this._rect = null;
@@ -995,7 +1019,7 @@
      * @return {L.Handler.PathTransform}
      */
     scale: function (scale, origin) {
-      if (typeof scale === 'number') {
+      if (typeof scale === "number") {
         scale = L.point(scale, scale);
       }
 
@@ -1047,7 +1071,7 @@
 
       this._applyTransform(matrix);
 
-      this._path.fire('transform', {
+      this._path.fire("transform", {
         layer: this._path
       });
     },
@@ -1096,7 +1120,7 @@
 
       map.dragging.enable();
 
-      this._path.fire('transformed', {
+      this._path.fire("transformed", {
         matrix: matrix,
         scale: scale,
         rotation: angle,
@@ -1172,6 +1196,10 @@
      * @param {L.LatLng=} scaleOrigin
      */
     _getProjectedMatrix: function (angle, scale, rotationOrigin, scaleOrigin) {
+      if (!this._path._map) {
+        return;
+      }
+
       var map = this._map;
       var zoom = map.getMaxZoom() || this.options.maxZoom;
       var matrix = L.matrix(1, 0, 0, 1, 0, 0);
@@ -1216,6 +1244,10 @@
      * @param {L.LatLng=} scaleOrigin
      */
     _transformPoints: function (path, angle, scale, rotationOrigin, scaleOrigin) {
+      if (!path._map) {
+        return;
+      }
+
       var map = path._map;
       var zoom = map.getMaxZoom() || this.options.maxZoom;
       var i, len;
@@ -1278,6 +1310,10 @@
      * Rotation marker and small connectin handle
      */
     _createRotationHandlers: function () {
+      if (!this._path._map) {
+        return;
+      }
+
       var map = this._map;
       var latlngs = this._rect._latlngs[0];
       var bottom = new L.LatLng((latlngs[0].lat + latlngs[3].lat) / 2, (latlngs[0].lng + latlngs[3].lng) / 2); // hehe, top is a reserved word
@@ -1286,7 +1322,7 @@
       var handlerPosition = map.layerPointToLatLng(L.PathTransform.pointOnLine(map.latLngToLayerPoint(bottom), map.latLngToLayerPoint(topPoint), this.options.handleLength));
       this._handleLine = new L.Polyline([topPoint, handlerPosition], this.options.rotateHandleOptions).addTo(this._handlersGroup);
       var RotateHandleClass = this.options.rotateHandleClass;
-      this._rotationMarker = new RotateHandleClass(handlerPosition, this.options.handlerOptions).addTo(this._handlersGroup).on('mousedown', this._onRotateStart, this);
+      this._rotationMarker = new RotateHandleClass(handlerPosition, this.options.handlerOptions).addTo(this._handlersGroup).on("mousedown", this._onRotateStart, this);
       this._rotationOrigin = new L.LatLng((topPoint.lat + bottom.lat) / 2, (topPoint.lng + bottom.lng) / 2);
 
       this._handlers.push(this._rotationMarker);
@@ -1307,6 +1343,10 @@
      * @param  {Event} evt
      */
     _onRotateStart: function (evt) {
+      if (!this._map) {
+        return;
+      }
+
       var map = this._map;
       map.dragging.disable();
       this._originMarker = null;
@@ -1315,13 +1355,13 @@
       this._initialMatrix = this._matrix.clone();
       this._angle = 0;
 
-      this._path._map.on('mousemove', this._onRotate, this).on('mouseup', this._onRotateEnd, this);
+      this._path._map.on("mousemove", this._onRotate, this).on("mouseup", this._onRotateEnd, this);
 
       this._cachePoints();
 
-      this._path.fire('transformstart', {
+      this._path.fire("transformstart", {
         layer: this._path
-      }).fire('rotatestart', {
+      }).fire("rotatestart", {
         layer: this._path,
         rotation: 0
       });
@@ -1340,7 +1380,7 @@
 
       this._update();
 
-      this._path.fire('rotate', {
+      this._path.fire("rotate", {
         layer: this._path,
         rotation: this._angle
       });
@@ -1350,13 +1390,13 @@
      * @param  {Event} evt
      */
     _onRotateEnd: function (evt) {
-      this._path._map.off('mousemove', this._onRotate, this).off('mouseup', this._onRotateEnd, this);
+      this._path._map.off("mousemove", this._onRotate, this).off("mouseup", this._onRotateEnd, this);
 
       var angle = this._angle;
 
       this._apply();
 
-      this._path.fire('rotateend', {
+      this._path.fire("rotateend", {
         layer: this._path,
         rotation: angle
       });
@@ -1374,29 +1414,29 @@
      */
     _line: function (ptA, ptB) {
       let line = {
-        'a': null,
-        'b': null,
-        'c': null
+        a: null,
+        b: null,
+        c: null
       };
 
       if (ptB.y - ptA.y === 0) {
         line = {
-          'a': 0,
-          'b': 1,
-          'c': ptA.y
+          a: 0,
+          b: 1,
+          c: ptA.y
         };
       } else {
         let diviseur = ptB.x - ptA.x;
         let a = (ptB.y - ptA.y) / diviseur;
         let c = ptB.y - a * ptB.x;
         line = {
-          'a': a,
-          'b': -1,
-          'c': c
+          a: a,
+          b: -1,
+          c: c
         };
       }
 
-      line.equation = line.a + 'x + ' + line.b + 'y + ' + line.c + ' = 0';
+      line.equation = line.a + "x + " + line.b + "y + " + line.c + " = 0";
       line.v = [-line.b, line.a];
       return line;
     },
@@ -1405,11 +1445,11 @@
       // vecteur (a, b) est normal à la droite.
       let c = -(vecteur[0] * pt.x) - vecteur[1] * pt.y;
       let line = {
-        'a': vecteur[0],
-        'b': vecteur[1],
-        'c': c
+        a: vecteur[0],
+        b: vecteur[1],
+        c: c
       };
-      line.equation = line.a + 'x + ' + line.b + 'y + ' + line.c + ' = 0';
+      line.equation = line.a + "x + " + line.b + "y + " + line.c + " = 0";
       line.v = [-line.b, line.a];
       return line;
     },
@@ -1417,15 +1457,15 @@
     _intercept(l1, l2, ptH) {
       if (l2.v[0] === 0) {
         return {
-          'x': this._ptO.x,
-          'y': ptH.y
+          x: this._ptO.x,
+          y: ptH.y
         };
       }
 
       if (l2.v[0] === Infinity || l2.v[0] === -Infinity) {
         return {
-          'x': ptH.x,
-          'y': this._ptO.y
+          x: ptH.x,
+          y: this._ptO.y
         };
       }
 
@@ -1438,16 +1478,16 @@
 
       if (a === 0 && b === 1 && e === 0) {
         return {
-          'x': E / A,
-          'y': 0
+          x: E / A,
+          y: 0
         };
       }
 
       var y = (A * e / a - E) / (B - A * b / a);
       var x = (-b * y - e) / a;
       return {
-        'x': x,
-        'y': y
+        x: x,
+        y: y
       };
     },
 
@@ -1455,6 +1495,10 @@
      * @param  {Event} evt
      */
     _onScaleStart: function (evt) {
+      if (!this._map) {
+        return;
+      }
+
       var marker = evt.target;
       var map = this._map;
       map.dragging.disable();
@@ -1466,7 +1510,7 @@
       this._cachePoints();
 
       if (this.options.uniformScaling) {
-        this._map.on('mousemove', this._onScaleUniform, this);
+        this._map.on("mousemove", this._onScaleUniform, this);
       } else {
         this._ptO = this._map.latLngToContainerPoint(this._originMarker._latlng);
         let handlerA = this._handlers[(marker.options.index + 1) % 4];
@@ -1476,18 +1520,18 @@
         this._lineOA = this._line(this._ptO, this._ptA);
         this._lineOB = this._line(this._ptO, this._ptB);
 
-        this._map.on('mousemove', this._onScaleStandard, this);
+        this._map.on("mousemove", this._onScaleStandard, this);
       }
 
-      this._map.on('mouseup', this._onScaleEnd, this);
+      this._map.on("mouseup", this._onScaleEnd, this);
 
       this._initialDist = this._originMarker._point.distanceTo(this._activeMarker._point);
       this._initialDistX = this._originMarker._point.x - this._activeMarker._point.x;
       this._initialDistY = this._originMarker._point.y - this._activeMarker._point.y;
 
-      this._path.fire('transformstart', {
+      this._path.fire("transformstart", {
         layer: this._path
-      }).fire('scalestart', {
+      }).fire("scalestart", {
         layer: this._path,
         scale: L.point(1, 1)
       });
@@ -1498,6 +1542,10 @@
 
     },
     _onScaleStandard: function (evt) {
+      if (!this._path._map) {
+        return;
+      }
+
       let ptH = this._map.latLngToContainerPoint(evt.latlng);
 
       let ptHlineOANormalLine = this._lineVecteurNormalPoint(this._lineOA.v, ptH); // calc H projection on OA
@@ -1523,12 +1571,11 @@
 
         for (let indexHandler = 0; indexHandler < 4; indexHandler++) {
           let handler = this._handlers[indexHandler];
-          const round = this.options.scaleRounding || 4;
           let pathLatLng = null;
 
-          for (let i = 0, len = rings.length; i < len; i++) {
-            for (let j = 0, jj = rings[i].length; j < jj; j++) {
-              if (+latlngs[i][j].lat.toFixed(round) === +handler._latlng.lat.toFixed(round) && +latlngs[i][j].lng.toFixed(round) === +handler._latlng.lng.toFixed(round)) {
+          for (i = 0, len = rings.length; i < len; i++) {
+            for (var j = 0, jj = rings[i].length; j < jj; j++) {
+              if (latlngs[i][j].lat === handler._latlng.lat && latlngs[i][j].lng === handler._latlng.lng) {
                 pathLatLng = latlngs[i][j];
               }
             }
@@ -1568,7 +1615,7 @@
 
       this._update();
 
-      this._path.fire('scale', {
+      this._path.fire("scale", {
         layer: this._path,
         scale: this._scale.clone()
       });
@@ -1578,6 +1625,10 @@
      * @param  {Event} evt
      */
     _onScaleUniform: function (evt) {
+      if (!this._path._map) {
+        return;
+      }
+
       var originPoint = this._originMarker._point;
       var ratioX, ratioY;
       ratioX = originPoint.distanceTo(evt.layerPoint) / this._initialDist;
@@ -1588,7 +1639,7 @@
 
       this._update();
 
-      this._path.fire('scale', {
+      this._path.fire("scale", {
         layer: this._path,
         scale: this._scale.clone()
       });
@@ -1599,15 +1650,21 @@
      * @param  {Event} evt
      */
     _onScaleEnd: function (evt) {
-      this._map.off('mousemove', this._onScaleUniform, this).off('mousemove', this._onScaleStandard, this).off('mouseup', this._onScaleEnd, this);
+      if (!this._path._map) {
+        return;
+      }
+
+      this._map.off("mousemove", this._onScaleUniform, this).off("mousemove", this._onScaleStandard, this).off("mouseup", this._onScaleEnd, this);
 
       this._map.addLayer(this._handleLine);
 
       this._map.addLayer(this._rotationMarker);
 
+      this._makeHandlersApparent();
+
       this._apply();
 
-      this._path.fire('scaleend', {
+      this._path.fire("scaleend", {
         layer: this._path,
         scale: this._scale.clone()
       });
@@ -1635,7 +1692,11 @@
       if (this._rectShape) {
         return L.GeoJSON.geometryToLayer(this._rectShape, this.options.boundsOptions);
       } else {
-        return L.GeoJSON.geometryToLayer(this._path.toGeoJSON(), this.options.boundsOptions);
+        const latLngsBbox = this._path.getLatLngs();
+
+        const rectangle = new L.Rectangle(latLngsBbox, this.options.boundsOptions);
+        rectangle.setLatLngs(latLngsBbox);
+        return rectangle;
       }
     },
 
@@ -1647,15 +1708,13 @@
      * @return {L.Handler.PathTransform.Handle}
      */
     _createHandler: function (latlng, type, index) {
-      var HandleClass = this.options.handleClass; // var bounds = [[latlng], [latlng]];
-      // var marker = new HandleClass(bounds,
-
+      var HandleClass = this.options.handleClass;
       var marker = new HandleClass(latlng, L.Util.extend({}, this.options.handlerOptions, {
-        className: 'leaflet-drag-transform-marker drag-marker--' + index + ' drag-marker--' + type,
+        className: "leaflet-editing-icon leaflet-div-icon",
         index: index,
         type: type
       }));
-      marker.on('mousedown', this._onScaleStart, this);
+      marker.on("mousedown", this._onScaleStart, this);
       return marker;
     },
 
@@ -1664,6 +1723,30 @@
      */
     _hideHandlers: function () {
       this._map.removeLayer(this._handlersGroup);
+    },
+
+    /**
+     * Make handlers transparent
+     */
+    _makeHandlersTransparent: function () {
+      for (var i = this._handlers.length - 1; i >= 0; i--) {
+        this._handlers[i].setStyle({
+          color: TRANSPARENT_COLOR,
+          fillColor: TRANSPARENT_COLOR
+        });
+      }
+    },
+
+    /**
+     * Make handlers transparent
+     */
+    _makeHandlersApparent: function () {
+      for (var i = this._handlers.length - 1; i >= 0; i--) {
+        this._handlers[i].setStyle({
+          color: "#ffffff",
+          fillColor: "#ffffff"
+        });
+      }
     },
 
     /**
@@ -1701,7 +1784,7 @@
 
       this._updateHandlers();
 
-      this._path.fire('transformed', {
+      this._path.fire("transformed", {
         scale: L.point(1, 1),
         rotation: 0,
         matrix: L.matrix.apply(undefined, matrix),
