@@ -1546,6 +1546,8 @@
         return;
       }
 
+      var i, len;
+
       let ptH = this._map.latLngToContainerPoint(evt.latlng);
 
       let ptHlineOANormalLine = this._lineVecteurNormalPoint(this._lineOA.v, ptH); // calc H projection on OA

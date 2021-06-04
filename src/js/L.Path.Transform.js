@@ -1648,6 +1648,8 @@ L.Handler.PathTransform = L.Handler.extend({
     if (!this._path._map) {
       return;
     }
+    var i, len;
+
     let ptH = this._map.latLngToContainerPoint(evt.latlng);
 
     let ptHlineOANormalLine = this._lineVecteurNormalPoint(this._lineOA.v, ptH);
