@@ -14,7 +14,7 @@
   "main": "dist/leaflet-draw-rotate.js",
   "peerDependencies": {
     "leaflet": "^1.0.0",
-    "leaflet-draw": "^1.0.4"
+    "leaflet-draw": "github:kili-technology/Leaflet.draw"
   },
   "devDependencies": {
     "@babel/core": "^7.8.4",
