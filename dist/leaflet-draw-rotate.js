@@ -1055,6 +1055,10 @@
      * Update the polygon and handlers preview, no reprojection
      */
     _update: function () {
+      if (!this._path) {
+        return;
+      }
+
       var matrix = this._matrix; // update handlers
 
       for (var i = 0, len = this._handlers.length; i < len; i++) {
@@ -1390,6 +1394,10 @@
      * @param  {Event} evt
      */
     _onRotateEnd: function (evt) {
+      if (!this._path || !this._path._map) {
+        return;
+      }
+
       this._path._map.off("mousemove", this._onRotate, this).off("mouseup", this._onRotateEnd, this);
 
       var angle = this._angle;
