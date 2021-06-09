@@ -1776,7 +1776,7 @@ L.Handler.PathTransform = L.Handler.extend({
     this._map.addLayer(this._rotationMarker);
     this._makeHandlersApparent();
 
-    map.dragging.enable();
+    this._map.dragging.enable();
 
     this._apply();
     this._path.fire("scaleend", {
