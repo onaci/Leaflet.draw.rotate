@@ -1660,6 +1660,10 @@
      * @param  {Event} evt
      */
     _onScaleEnd: function (evt) {
+      if (this._map) {
+        this._map.dragging.enable();
+      }
+
       if (!this._path._map) {
         return;
       }
@@ -1671,8 +1675,6 @@
       this._map.addLayer(this._rotationMarker);
 
       this._makeHandlersApparent();
-
-      this._map.dragging.enable();
 
       this._apply();
 

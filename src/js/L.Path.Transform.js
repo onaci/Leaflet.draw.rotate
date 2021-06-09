@@ -1764,6 +1764,9 @@ L.Handler.PathTransform = L.Handler.extend({
    * @param  {Event} evt
    */
   _onScaleEnd: function (evt) {
+    if(this._map){
+      this._map.dragging.enable();
+    }
     if (!this._path._map) {
       return;
     }
@@ -1776,7 +1779,6 @@ L.Handler.PathTransform = L.Handler.extend({
     this._map.addLayer(this._rotationMarker);
     this._makeHandlersApparent();
 
-    this._map.dragging.enable();
 
     this._apply();
     this._path.fire("scaleend", {
