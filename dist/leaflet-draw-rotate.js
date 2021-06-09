@@ -1672,6 +1672,8 @@
 
       this._makeHandlersApparent();
 
+      map.dragging.enable();
+
       this._apply();
 
       this._path.fire("scaleend", {
