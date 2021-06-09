@@ -1672,7 +1672,7 @@
 
       this._makeHandlersApparent();
 
-      map.dragging.enable();
+      this._map.dragging.enable();
 
       this._apply();
 
