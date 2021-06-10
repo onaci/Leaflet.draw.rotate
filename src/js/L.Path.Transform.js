@@ -1602,10 +1602,14 @@ L.Handler.PathTransform = L.Handler.extend({
     if (!this._map) {
       return;
     }
+
     var marker = evt.target;
     var map = this._map;
-
-    map.dragging.disable();
+    
+    if (map.dragging.enabled()) {
+      map.dragging.disable();
+      this._mapDraggingWasEnabled = true;
+    }
 
     this._activeMarker = marker;
 
@@ -1764,9 +1768,10 @@ L.Handler.PathTransform = L.Handler.extend({
    * @param  {Event} evt
    */
   _onScaleEnd: function (evt) {
-    if(this._map){
+    if (this._map && this._mapDraggingWasEnabled) {
       this._map.dragging.enable();
     }
+
     if (!this._path._map) {
       return;
     }
